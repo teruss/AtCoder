@@ -9,23 +9,32 @@ def solve(R, C, K, rc):
             columns[c] = 0
         columns[c] += 1
 
+    numColumnsForCandy = {}
+    for v in columns.values():
+        if v not in numColumnsForCandy:
+            numColumnsForCandy[v] = 0
+        numColumnsForCandy[v] += 1
+    numColumnsForCandy[0] = C - len(columns)
+
     res = 0
     for row in rows:
-        for column in columns:
-            if rows[row] + columns[column] - (1 if (row, column) in rc else 0) == K:
-                res += 1
+        remain = K - rows[row]
+        if remain in numColumnsForCandy:
+            res += numColumnsForCandy[remain]
 
-    for row in rows:
-        if rows[row] == K:
-            res += C - len(columns)
+    numRowsWithNoCandy = R - len(rows)
+    if K in numColumnsForCandy:
+        res += numColumnsForCandy[K] * numRowsWithNoCandy
 
-    for column in columns:
-        if columns[column] == K:
-            res += R - len(rows)
+    for r, c in rc:
+        if rows[r] + columns[c] == K:
+            res -= 1
+        if rows[r] + columns[c] - 1 == K:
+            res += 1
 
     return res
 
 if __name__ == "__main__":
     R, C, K = map(int, raw_input().split())
-    rc = [tuple(map(int, raw_input().split())) for _ in range(input())]
-    print solve(R, C, K, rc)
+    candies = [tuple(map(int, raw_input().split())) for _ in range(input())]
+    print solve(R, C, K, candies)
